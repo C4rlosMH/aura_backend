@@ -1,6 +1,6 @@
-# Simet - Backend (API)
+# Aura - Backend (API)
 
-Este es el backend del sistema Simet (Sistema de Inventario Multi-Hotel), desarrollado con **Node.js** y **Express**. Utiliza **Prisma ORM** para la gestión de la base de datos MySQL y ofrece una API RESTful para la gestión de activos, mantenimientos, usuarios y reportes.
+Este es el backend del sistema Aura (Sistema de Inventario Multi-Hotel), desarrollado con **Node.js** y **Express**. Utiliza **Prisma ORM** para la gestión de la base de datos MySQL y ofrece una API RESTful para la gestión de activos, mantenimientos, usuarios y reportes.
 
 ## Requisitos Previos
 
@@ -30,7 +30,7 @@ PORT=3000
 
 # Conexión a la Base de Datos (MySQL)
 # Formato: mysql://USUARIO:CONTRASEÑA@HOST:PUERTO/NOMBRE_DB
-DATABASE_URL="mysql://root:password@localhost:3306/simet_v2"
+DATABASE_URL="mysql://root:password@localhost:3306/aura_db"
 
 # Clave secreta para firmar los tokens JWT (Cámbiala por una cadena segura)
 JWT_SECRET="supersecreto_cambiar_en_produccion"

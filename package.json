@@ -2,12 +2,13 @@
   "name": "backend_v2",
   "version": "2.0.0",
   "type": "module",
-  "description": "Backend para el sistema Simet",
+  "description": "Backend para el sistema Aura",
   "main": "index.js",
   "scripts": {
+    "build": "npx tsc && javascript-obfuscator ./dist --output ./dist-obfuscated --compact true --control-flow-flattening true --dead-code-injection true",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon src/index.js",
-    "start": "npx prisma generate && npx prisma migrate deploy && node src/index.js"
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist-obfuscated/index.js"
   },
   "keywords": [],
   "author": "Carlos Miranda",
@@ -20,6 +21,7 @@
     "cors": "^2.8.5",
     "docxtemplater": "^3.67.6",
     "dotenv": "^17.2.1",
+    "drizzle-orm": "^0.45.2",
     "exceljs": "^4.4.0",
     "express": "^5.1.0",
     "express-rate-limit": "^8.2.1",
@@ -28,14 +30,29 @@
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.1",
     "multer": "^2.0.2",
+    "mysql2": "^3.22.0",
     "node-cron": "^4.2.1",
+    "node-machine-id": "^1.1.12",
     "nodemailer": "^7.0.12",
     "pizzip": "^3.2.0"
   },
   "devDependencies": {
     "@mermaid-js/mermaid-cli": "^11.12.0",
+    "@types/compression": "^1.8.1",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/morgan": "^1.9.10",
+    "@types/multer": "^2.1.0",
+    "@types/node": "^25.6.0",
+    "@types/nodemailer": "^8.0.0",
+    "drizzle-kit": "^0.31.10",
+    "javascript-obfuscator": "^5.4.1",
     "nodemon": "^3.1.10",
     "prisma": "^6.15.0",
-    "prisma-erd-generator": "^2.4.2"
+    "prisma-erd-generator": "^2.4.2",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.2"
   }
 }

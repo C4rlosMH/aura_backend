@@ -1,6 +1,6 @@
 module.exports = {
   apps : [{
-    name   : "simet-api",
+    name   : "aura-api",
     script : "npm",
     args: "run start",
     env: {
