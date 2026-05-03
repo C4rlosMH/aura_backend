@@ -12,7 +12,8 @@ import path from "path";
 import { db } from "./core/database";
 import { preloadMasterData } from "./core/utils/preloadData";
 import { errorHandler } from "./core/middlewares/errorHandler";
-import { licenseGuard } from "./middlewares/license.middleware"; 
+//import { licenseGuard } from "./middlewares/license.middleware"; 
+import { verifyHardwareLock } from "./middlewares/license.middleware";
 import { MAIN_CRON_PROCESS } from "./core/utils/cronJobs"; // Asumiremos que crearemos un archivo para agrupar el cron
 
 // --- [INICIO] IMPORTS NUEVOS PARA DIAGNÓSTICO ---
@@ -87,7 +88,8 @@ app.use(cors({ origin: true, credentials: true })); // origin true dinámico par
 app.use(express.json());
 
 // --- AURA LICENSING HEARTBEAT ---
-app.use(licenseGuard); 
+//app.use(licenseGuard); 
+app.use(verifyHardwareLock);
 
 // --- RUTAS MODULARES DE AURA ---
 app.use("/api/auth", authRoutes);

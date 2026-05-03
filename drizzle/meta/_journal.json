@@ -36,6 +36,20 @@
       "when": 1777782069532,
       "tag": "0004_melted_fat_cobra",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1777788982331,
+      "tag": "0005_fair_tarot",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1777789112754,
+      "tag": "0006_breezy_sway",
+      "breakpoints": true
     }
   ]
 }

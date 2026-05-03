@@ -9,7 +9,8 @@ export default defineConfig({
     "./src/modules/inventory/inventory.model.ts",
     "./src/modules/audit/audit.model.ts",
     "./src/modules/maintenance/maintenance.model.ts",
-    "./src/core/security/license.model.ts"
+    "./src/core/security/license.model.ts",
+    "./src/modules/inventory/invoices.model.ts",
   ],
   out: "./drizzle",
   dialect: "mysql",
