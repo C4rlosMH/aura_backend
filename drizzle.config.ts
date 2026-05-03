@@ -11,6 +11,7 @@ export default defineConfig({
     "./src/modules/maintenance/maintenance.model.ts",
     "./src/core/security/license.model.ts",
     "./src/modules/inventory/invoices.model.ts",
+    "./src/modules/networks/networks.model.ts",
   ],
   out: "./drizzle",
   dialect: "mysql",
@@ -18,3 +19,4 @@ export default defineConfig({
     url: process.env.DATABASE_URL as string,
   },
 });
+

@@ -50,6 +50,20 @@
       "when": 1777789112754,
       "tag": "0006_breezy_sway",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1777826421186,
+      "tag": "0007_last_kulan_gath",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1777826697144,
+      "tag": "0008_cool_sharon_carter",
+      "breakpoints": true
     }
   ]
 }

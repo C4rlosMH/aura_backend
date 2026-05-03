@@ -37,6 +37,8 @@ import suppliesRoutes from "./modules/inventory/supplies.routes";
 import analyticsRoutes from "./modules/inventory/analytics.routes";
 import invoiceRoutes from "./modules/inventory/invoice.routes";
 
+import networkRoutes from "./modules/networks/networks.routes";
+
 import auditRoutes from "./modules/audit/audit.routes";
 import maintenanceRoutes from "./modules/maintenance/maintenance.routes";
 
@@ -106,6 +108,8 @@ app.use("/api/disposals", disposalRoutes);
 app.use("/api/supplies", suppliesRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/invoices", invoiceRoutes);
+
+app.use("/api/networks", networkRoutes);
 
 app.use("/api/audit", auditRoutes);
 app.use("/api/maintenances", maintenanceRoutes);
