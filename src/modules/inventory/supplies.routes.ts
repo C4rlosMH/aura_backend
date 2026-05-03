@@ -1,18 +1,26 @@
 import { Router } from "express";
 import { createSupply, getSuppliesBySite, addStock, consumeStock } from "./supplies.controller";
+import { authenticateJWT, verifyRole } from "../../middlewares/auth.middleware";
+import { ROLES } from "../../config/constants.js";
 
 const router = Router();
+router.use(authenticateJWT);
 
-// Crear un nuevo insumo en el catálogo
-router.post("/", createSupply);
+// Roles para MODIFICAR (Editores + Support)
+const canModifySupplies = [
+    ROLES.AURA_ROOT, ROLES.CORP_ADMIN, ROLES.SITE_ADMIN, 
+    ROLES.SITE_STAFF, ROLES.SITE_AUX, ROLES.AURA_SUPPORT
+];
 
-// Ver el catálogo de insumos de un sitio
-router.get("/site/:siteId", getSuppliesBySite);
+// Roles para VER (Editores + Lectores)
+const canReadSupplies = [
+    ROLES.AURA_ROOT, ROLES.CORP_ADMIN, ROLES.SITE_ADMIN, 
+    ROLES.SITE_STAFF, ROLES.SITE_AUX, ROLES.CORP_VIEWER, ROLES.SITE_GUEST
+];
 
-// Agregar más stock a un insumo existente
-router.post("/:id/add", addStock);
-
-// Consumir stock de un insumo (El técnico saca material)
-router.post("/:id/consume", consumeStock);
+router.post("/", verifyRole(canModifySupplies), createSupply);
+router.get("/site/:siteId", verifyRole(canReadSupplies), getSuppliesBySite);
+router.post("/:id/add", verifyRole(canModifySupplies), addStock);
+router.post("/:id/consume", verifyRole(canModifySupplies), consumeStock);
 
 export default router;

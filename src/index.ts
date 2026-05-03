@@ -7,6 +7,7 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit"; 
 import compression from "compression"; 
 import morgan from "morgan"; 
+import path from "path";
 
 import { db } from "./core/database";
 import { preloadMasterData } from "./core/utils/preloadData";
@@ -33,6 +34,7 @@ import catalogRoutes from "./modules/inventory/catalog.routes";
 import disposalRoutes from "./modules/inventory/disposal.routes";
 import suppliesRoutes from "./modules/inventory/supplies.routes";
 import analyticsRoutes from "./modules/inventory/analytics.routes";
+import invoiceRoutes from "./modules/inventory/invoice.routes";
 
 import auditRoutes from "./modules/audit/audit.routes";
 import maintenanceRoutes from "./modules/maintenance/maintenance.routes";
@@ -101,9 +103,12 @@ app.use("/api/catalog", catalogRoutes); // Encapsula os, deviceTypes, y deviceSt
 app.use("/api/disposals", disposalRoutes);
 app.use("/api/supplies", suppliesRoutes);
 app.use("/api/analytics", analyticsRoutes);
+app.use("/api/invoices", invoiceRoutes);
 
 app.use("/api/audit", auditRoutes);
 app.use("/api/maintenances", maintenanceRoutes);
+
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 app.use(errorHandler);
 

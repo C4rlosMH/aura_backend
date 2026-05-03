@@ -21,3 +21,5 @@ node_modules
 # Legado (Prisma ya no se usa en Aura)
 prisma
 
+# Cargas de usuarios
+uploads/

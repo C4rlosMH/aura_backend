@@ -2,6 +2,7 @@ import { mysqlTable, int, varchar, timestamp, boolean, text, mysqlEnum, decimal 
 import { relations } from 'drizzle-orm';
 import { areas, sites } from '../organization/organization.model';
 import { staff } from '../staff/staff.model';
+import { invoices } from './invoices.model';
 
 export const deviceType = mysqlTable('DeviceType', {
     id: int('id').autoincrement().primaryKey(),
@@ -82,6 +83,7 @@ export const devices = mysqlTable('Device', {
   precioCompra: decimal('precio_compra', { precision: 10, scale: 2 }).default('0.00'),
   moneda: varchar('moneda', { length: 3 }).default('MXN'), // O USD según necesites
 
+  invoiceId: int('invoice_id').references(() => invoices.id),
 });
 
 export const deviceRelations = relations(devices, ({ one }) => ({
@@ -114,6 +116,8 @@ export const supplies = mysqlTable('supplies', {
     costoUnitario: decimal('costo_unitario', { precision: 10, scale: 2 }).notNull().default('0.00'), // Clave para el módulo financiero
     createdAt: timestamp('createdAt').defaultNow(),
     updatedAt: timestamp('updatedAt').defaultNow().onUpdateNow(),
+
+    invoiceId: int('invoice_id').references(() => invoices.id),
 });
 
 export const supplyTransactions = mysqlTable('supply_transactions', {
