@@ -180,3 +180,41 @@ export const getDeviceById = async (id: number | string, user: AuthUser) => {
        with: { staff: true, type: true, status: true, os: true, area: { with: { departamento: true } }, site: true, vlan: true }
    });
 };
+
+export const updatePosition = async (
+  id: number | string, 
+  data: { pos_x: string | null; pos_y: string | null; rotation: number; area_id: number | null }, 
+  user: AuthUser
+) => {
+  const deviceId = Number(id);
+  
+  // 1. Verificamos que el equipo exista y pertenezca al contexto del usuario
+  const oldDevice = await getDeviceById(deviceId, user);
+  if (!oldDevice) throw new Error("Dispositivo no localizado en tu entorno Aura.");
+
+  // 2. Actualizamos las coordenadas
+  await db.update(devices)
+    .set({
+      pos_x: data.pos_x,
+      pos_y: data.pos_y,
+      rotation: data.rotation,
+      areaId: data.area_id
+    })
+    .where(eq(devices.id, deviceId));
+
+  // 3. Obtenemos el equipo actualizado
+  const updatedDevice = await getDeviceById(deviceId, user);
+
+  // 4. Dejamos rastro en la auditoría
+  await auditService.logActivity({
+    action: 'UPDATE',
+    entity: 'Device',
+    entityId: deviceId,
+    oldData: { pos_x: oldDevice.pos_x, pos_y: oldDevice.pos_y, rotation: oldDevice.rotation, area_id: oldDevice.area_id },
+    newData: { pos_x: data.pos_x, pos_y: data.pos_y, rotation: data.rotation, area_id: data.area_id },
+    user,
+    details: `Coordenadas actualizadas en el mapa para: ${oldDevice.nombre_equipo || 'Dispositivo'}`
+  });
+
+  return updatedDevice;
+};

@@ -51,3 +51,36 @@ export const deleteDevice = async (req: AuthRequest, res: Response, next: NextFu
     res.json(r);
   } catch (error: any) { res.status(400).json({ error: error.message }); }
 };
+
+export const updateDevicePosition = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+    const { pos_x, pos_y, rotation, area_id } = req.body;
+
+    // Validación: X y Y deben ser porcentajes entre 0 y 100
+    if (pos_x && (parseFloat(pos_x) < 0 || parseFloat(pos_x) > 100)) {
+      return res.status(400).json({ error: "La coordenada X está fuera de rango (0-100)" });
+    }
+    if (pos_y && (parseFloat(pos_y) < 0 || parseFloat(pos_y) > 100)) {
+      return res.status(400).json({ error: "La coordenada Y está fuera de rango (0-100)" });
+    }
+
+    const device = await deviceService.updatePosition(String(id), {
+      pos_x: pos_x !== undefined ? String(pos_x) : null,
+      pos_y: pos_y !== undefined ? String(pos_y) : null,
+      rotation: rotation || 0,
+      area_id: area_id ? Number(area_id) : null
+    }, req.user!);
+
+    res.status(200).json({
+      message: "Posición actualizada correctamente en el mapa",
+      data: device
+    });
+  } catch (error: any) {
+    // Si es un error controlado (ej. no encontrado), mandamos 400, sino lo pasamos al error handler global
+    if (error.message.includes("no localizado")) {
+      return res.status(404).json({ error: error.message });
+    }
+    next(error);
+  }
+};

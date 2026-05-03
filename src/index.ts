@@ -114,7 +114,11 @@ app.use("/api/networks", networkRoutes);
 app.use("/api/audit", auditRoutes);
 app.use("/api/maintenances", maintenanceRoutes);
 
+//subir facturas en pdf
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+
+//subir mapas de sitios
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 app.use(errorHandler);
 

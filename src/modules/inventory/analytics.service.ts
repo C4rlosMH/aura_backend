@@ -8,7 +8,7 @@ import { maintenances } from "../maintenance/maintenance.model";
  */
 async function getAuraEngine() {
     try {
-        return await import("./analytics.secret");
+        return await import("./secrets/analytics.secret");
     } catch (e) {
         return null;
     }

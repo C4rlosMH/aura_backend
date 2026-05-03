@@ -84,6 +84,10 @@ export const devices = mysqlTable('Device', {
   moneda: varchar('moneda', { length: 3 }).default('MXN'), // O USD según necesites
 
   invoiceId: int('invoice_id').references(() => invoices.id),
+  pos_x: decimal('pos_x', { precision: 5, scale: 2 }), // Coordenada X en porcentaje (ej. 45.50)
+  pos_y: decimal('pos_y', { precision: 5, scale: 2 }), // Coordenada Y en porcentaje (ej. 80.20)
+  rotation: int('rotation').default(0),                // Rotación en grados (0 a 360) para apuntar las cámaras
+  area_id: varchar('area_id', { length: 36 }).references(() => areas.id), // Para saber en qué mapa se va a dibujar
 });
 
 export const deviceRelations = relations(devices, ({ one }) => ({

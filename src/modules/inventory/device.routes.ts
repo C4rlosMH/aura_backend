@@ -14,6 +14,9 @@ router.get("/get", verifyRole(READ_ALL), deviceController.getDevices);
 router.get("/get/:id", validateId, verifyRole(READ_ALL), deviceController.getDevice);
 router.post("/post", verifyRole(EDIT_ACCESS), deviceController.createDevice);
 router.put("/put/:id", validateId, verifyRole(EDIT_ACCESS), deviceController.updateDevice);
+
+router.patch("/patch/:id/position", validateId, verifyRole(EDIT_ACCESS), deviceController.updateDevicePosition);
+
 router.delete("/delete/:id", validateId, verifyRole(EDIT_ACCESS), deviceController.deleteDevice);
 
 export default router;

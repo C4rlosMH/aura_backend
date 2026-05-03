@@ -1,4 +1,4 @@
-import { mysqlTable, int, varchar, timestamp, boolean, mysqlEnum, unique } from 'drizzle-orm/mysql-core';
+import { mysqlTable, int, varchar, timestamp, boolean, mysqlEnum, unique, decimal } from 'drizzle-orm/mysql-core';
 import { relations } from 'drizzle-orm';
 
 export const sites = mysqlTable('sites', {
@@ -31,7 +31,11 @@ export const areas = mysqlTable('areas', {
   siteId: int('site_id').notNull(),
   departamentoId: int('departamento_id').notNull(),
   environmentType: mysqlEnum('environment_type', ['SITE', 'LOBBY', 'OFFICE', 'OUTDOOR']).default('OFFICE'),
-  deletedAt: timestamp('deleted_at')
+  deletedAt: timestamp('deleted_at'),
+
+  map_image_url: varchar('map_image_url', { length: 500 }), // URL del croquis (S3 o local)
+  map_scale: decimal('map_scale', { precision: 5, scale: 2 }), // Opcional: para saber cuántos metros representa 1 pixel
+
 }, (t) => ({
   unq: unique().on(t.nombre, t.departamentoId, t.siteId)
 }));

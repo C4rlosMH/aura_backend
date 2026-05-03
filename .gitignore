@@ -12,6 +12,8 @@ logs/
 *.secret.ts
 *.secret.js
 
+secrets/
+
 
 # Compilación y Artefactos
 dist
