@@ -10,6 +10,7 @@ export const deviceType = mysqlTable('DeviceType', {
     sub_category: varchar('sub_category', { length: 255 }),
     createdAt: timestamp('createdAt').defaultNow(),
     updatedAt: timestamp('updatedAt').defaultNow().onUpdateNow(),
+    deletedAt: timestamp('deletedAt'),
 });
 
 export const deviceStatus = mysqlTable('DeviceStatus', {

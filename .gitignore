@@ -15,7 +15,7 @@ logs/
 
 # Compilación y Artefactos
 dist
-dist_obfuscated
+dist-obfuscated/
 node_modules
 
 # Legado (Prisma ya no se usa en Aura)

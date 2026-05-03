@@ -1,0 +1,1 @@
+ALTER TABLE `DeviceType` ADD `deletedAt` timestamp;
