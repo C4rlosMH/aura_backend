@@ -128,9 +128,9 @@ export const importStaff = async (req: AuthRequest, res: Response, next: NextFun
     try {
       if (!req.file) return res.status(400).json({ error: "No payload injected" });
 
-      const targetHotelId = req.body.hotelId ? Number(req.body.hotelId) : null;
+      const targetSiteId = req.body.siteId ? Number(req.body.siteId) : null;
 
-      const result = await staffService.importStaffFromExcel(req.file.buffer, req.user!, targetHotelId);
+      const result = await staffService.importStaffFromExcel(req.file.buffer, req.user!, targetSiteId);
       res.json(result);
     } catch (error) {
       next(error);

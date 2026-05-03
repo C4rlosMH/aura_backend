@@ -16,7 +16,7 @@ import { MAIN_CRON_PROCESS } from "./core/utils/cronJobs"; // Asumiremos que cre
 
 // Nuevos Rutadores Modulares
 import authRoutes from "./modules/auth/auth.routes";
-import hotelRoutes from "./modules/organization/hotel.routes";
+import siteRoutes from "./modules/organization/site.routes";
 import departmentRoutes from "./modules/organization/department.routes";
 import areaRoutes from "./modules/organization/area.routes";
 import staffRoutes from "./modules/staff/staff.routes";
@@ -50,7 +50,7 @@ app.use(licenseGuard);
 // --- RUTAS MODULARES DE AURA ---
 app.use("/api/auth", authRoutes);
 app.use("/api/license", licenseRoutes);
-app.use("/api/hotels", hotelRoutes);
+app.use("/api/sites", siteRoutes);
 app.use("/api/departments", departmentRoutes);
 app.use("/api/areas", areaRoutes); 
 

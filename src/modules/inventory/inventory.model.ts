@@ -1,6 +1,6 @@
 import { mysqlTable, int, varchar, timestamp, boolean, text, mysqlEnum, decimal } from 'drizzle-orm/mysql-core';
 import { relations } from 'drizzle-orm';
-import { areas, hotels } from '../organization/organization.model';
+import { areas, sites } from '../organization/organization.model';
 import { staff } from '../staff/staff.model';
 
 export const deviceType = mysqlTable('DeviceType', {
@@ -30,7 +30,7 @@ export const auraVLANs = mysqlTable('Aura_VLANs', {
   nombre: varchar('nombre', { length: 255 }).notNull(),
   vlan_number: int('vlan_number').notNull(),
   subnet_cidr: varchar('subnet_cidr', { length: 50 }), // e.g., "192.168.1.0/24"
-  hotelId: int('hotelId').notNull(),
+  siteId: int('siteId').notNull(),
   deletedAt: timestamp('deletedAt')
 });
 
@@ -69,7 +69,7 @@ export const devices = mysqlTable('Device', {
   // Relaciones/Tenants
   usuarioId: int('usuarioId'), // Connects to Staff
   areaId: int('areaId'), 
-  hotelId: int('hotelId').notNull(),
+  siteId: int('siteId').notNull(),
   vlanId: int('vlanId'),
   tipoId: int('tipoId').notNull(),
   estadoId: int('estadoId').notNull(),
@@ -83,7 +83,7 @@ export const devices = mysqlTable('Device', {
 export const deviceRelations = relations(devices, ({ one }) => ({
    staff: one(staff, { fields: [devices.usuarioId], references: [staff.id] }),
    area: one(areas, { fields: [devices.areaId], references: [areas.id] }),
-   hotel: one(hotels, { fields: [devices.hotelId], references: [hotels.id] }),
+   site: one(sites, { fields: [devices.siteId], references: [sites.id] }),
    vlan: one(auraVLANs, { fields: [devices.vlanId], references: [auraVLANs.id] }),
    type: one(deviceType, { fields: [devices.tipoId], references: [deviceType.id] }),
    status: one(deviceStatus, { fields: [devices.estadoId], references: [deviceStatus.id] }),
@@ -91,6 +91,6 @@ export const deviceRelations = relations(devices, ({ one }) => ({
 }));
 
 export const vlanRelations = relations(auraVLANs, ({ one, many }) => ({
-   hotel: one(hotels, { fields: [auraVLANs.hotelId], references: [hotels.id] }),
+   site: one(sites, { fields: [auraVLANs.siteId], references: [sites.id] }),
    devices: many(devices)
 }));

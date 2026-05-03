@@ -1,12 +1,12 @@
 export const ROLES = {
   AURA_ROOT: "AURA_ROOT",         // Dios absoluto
   AURA_SUPPORT: "AURA_SUPPORT",   // Soporte Técnico sin datos
-  CORP_ADMIN: "CORP_ADMIN",       // Admin de Cliente General (Todos los Hoteles)
+  CORP_ADMIN: "CORP_ADMIN",       // Admin de Cliente General (Todos los sitios)
   CORP_VIEWER: "CORP_VIEWER",     // Corporativo Solo Lectura
-  HOTEL_ADMIN: "HOTEL_ADMIN",     // Admin de propiedad
-  HOTEL_AUX: "HOTEL_AUX",         // Auxiliar de propiedad
-  HOTEL_STAFF: "HOTEL_STAFF",     // Staff Regular
-  HOTEL_GUEST: "HOTEL_GUEST"      // Invitado
+  SITE_ADMIN: "SITE_ADMIN",     // Admin de propiedad
+  SITE_AUX: "SITE_AUX",         // Auxiliar de propiedad
+  SITE_STAFF: "SITE_STAFF",     // Staff Regular
+  SITE_GUEST: "SITE_GUEST"      // Invitado
 };
 
 export const DEFAULTS = {

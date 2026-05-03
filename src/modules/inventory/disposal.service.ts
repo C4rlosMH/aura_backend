@@ -5,11 +5,11 @@ import { AuthUser } from "../auth/auth.types";
 import { DEVICE_STATUS, ROLES } from "../../config/constants.js";
 
 const getTenantFilter = (user: any) => {
-  if (!user) return { hotelId: -1 };
+  if (!user) return { siteId: -1 };
   if (user.rol === ROLES.AURA_ROOT || user.rol === ROLES.CORP_VIEWER || user.rol === ROLES.CORP_ADMIN) return null;
-  if (user.hotelId && user.allowedHotels && user.allowedHotels.includes(Number(user.hotelId))) return { hotelId: Number(user.hotelId) };
-  if (user.allowedHotels && user.allowedHotels.length > 0) return { in: user.allowedHotels };
-  return { hotelId: -1 };
+  if (user.siteId && user.allowedSites && user.allowedSites.includes(Number(user.siteId))) return { siteId: Number(user.siteId) };
+  if (user.allowedSites && user.allowedSites.length > 0) return { in: user.allowedSites };
+  return { siteId: -1 };
 };
 
 export const getInactiveDevices = async ({ skip, take, search, startDate, endDate }: any, user: AuthUser) => {
@@ -21,9 +21,9 @@ export const getInactiveDevices = async ({ skip, take, search, startDate, endDat
   const conditions: any[] = [isNull(devices.deletedAt), eq(devices.estadoId, disposedStatusRes.id)];
 
   if (tenantFilter) {
-      if (tenantFilter.hotelId === -1) conditions.push(eq(devices.hotelId, -1));
-      else if (tenantFilter.in) conditions.push(inArray(devices.hotelId, tenantFilter.in));
-      else if (tenantFilter.hotelId) conditions.push(eq(devices.hotelId, tenantFilter.hotelId));
+      if (tenantFilter.siteId === -1) conditions.push(eq(devices.siteId, -1));
+      else if (tenantFilter.in) conditions.push(inArray(devices.siteId, tenantFilter.in));
+      else if (tenantFilter.siteId) conditions.push(eq(devices.siteId, tenantFilter.siteId));
   }
 
   if (search) {

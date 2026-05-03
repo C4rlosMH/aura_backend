@@ -6,11 +6,11 @@ import { ROLES } from "../../config/constants.js";
 import { AuthUser, PaginationParams } from "./organization.types";
 
 const getTenantFilter = (user: any) => {
-  if (!user) return { hotelId: -1 };
+  if (!user) return { siteId: -1 };
   if (user.rol === ROLES.AURA_ROOT || user.rol === ROLES.CORP_VIEWER || user.rol === ROLES.CORP_ADMIN) return null;
-  if (user.hotelId && user.allowedHotels && user.allowedHotels.includes(Number(user.hotelId))) return { hotelId: Number(user.hotelId) };
-  if (user.allowedHotels && user.allowedHotels.length > 0) return { in: user.allowedHotels };
-  return { hotelId: -1 };
+  if (user.siteId && user.allowedSites && user.allowedSites.includes(Number(user.siteId))) return { siteId: Number(user.siteId) };
+  if (user.allowedSites && user.allowedSites.length > 0) return { in: user.allowedSites };
+  return { siteId: -1 };
 };
 
 export const getAreas = async ({ skip, take, sortBy, order }: PaginationParams, user: AuthUser) => {
@@ -18,16 +18,16 @@ export const getAreas = async ({ skip, take, sortBy, order }: PaginationParams, 
   
   const conditions: any[] = [isNull(areas.deletedAt)];
   if (tenantFilter) {
-      if (tenantFilter.hotelId === -1) conditions.push(eq(areas.hotelId, -1));
-      else if (tenantFilter.in) conditions.push(inArray(areas.hotelId, tenantFilter.in));
-      else if (tenantFilter.hotelId) conditions.push(eq(areas.hotelId, tenantFilter.hotelId));
+      if (tenantFilter.siteId === -1) conditions.push(eq(areas.siteId, -1));
+      else if (tenantFilter.in) conditions.push(inArray(areas.siteId, tenantFilter.in));
+      else if (tenantFilter.siteId) conditions.push(eq(areas.siteId, tenantFilter.siteId));
   }
 
   const result = await db.query.areas.findMany({
     where: conditions.length > 0 ? and(...conditions) : undefined,
     with: {
         departamento: true,
-        hotel: { columns: { nombre: true, codigo: true, id: true } }
+        site: { columns: { nombre: true, codigo: true, id: true } }
     },
     offset: skip,
     limit: take,
@@ -47,9 +47,9 @@ export const getAllAreas = async (user: AuthUser) => {
   const tenantFilter = getTenantFilter(user);
   const conditions: any[] = [isNull(areas.deletedAt)];
   if (tenantFilter) {
-      if (tenantFilter.hotelId === -1) conditions.push(eq(areas.hotelId, -1));
-      else if (tenantFilter.in) conditions.push(inArray(areas.hotelId, tenantFilter.in));
-      else if (tenantFilter.hotelId) conditions.push(eq(areas.hotelId, tenantFilter.hotelId));
+      if (tenantFilter.siteId === -1) conditions.push(eq(areas.siteId, -1));
+      else if (tenantFilter.in) conditions.push(inArray(areas.siteId, tenantFilter.in));
+      else if (tenantFilter.siteId) conditions.push(eq(areas.siteId, tenantFilter.siteId));
   }
 
   return await db.query.areas.findMany({
@@ -63,9 +63,9 @@ export const getAreaById = async (id: string | number, user: AuthUser) => {
     const tenantFilter = getTenantFilter(user);
     const conditions: any[] = [eq(areas.id, Number(id)), isNull(areas.deletedAt)];
     if (tenantFilter) {
-        if (tenantFilter.hotelId === -1) conditions.push(eq(areas.hotelId, -1));
-        else if (tenantFilter.in) conditions.push(inArray(areas.hotelId, tenantFilter.in));
-        else if (tenantFilter.hotelId) conditions.push(eq(areas.hotelId, tenantFilter.hotelId));
+        if (tenantFilter.siteId === -1) conditions.push(eq(areas.siteId, -1));
+        else if (tenantFilter.in) conditions.push(inArray(areas.siteId, tenantFilter.in));
+        else if (tenantFilter.siteId) conditions.push(eq(areas.siteId, tenantFilter.siteId));
     }
 
     return await db.query.areas.findFirst({
@@ -75,25 +75,25 @@ export const getAreaById = async (id: string | number, user: AuthUser) => {
 };
 
 export const createArea = async (data: any, user: AuthUser) => {
-    let hotelIdToAssign = user.hotelId;
-    if (!hotelIdToAssign && data.hotelId) hotelIdToAssign = Number(data.hotelId);
+    let siteIdToAssign = user.siteId;
+    if (!siteIdToAssign && data.siteId) siteIdToAssign = Number(data.siteId);
     
-    if (user.rol !== ROLES.AURA_ROOT && user.hotels) {
-        const canCreate = user.hotels.some((h: any) => h.id === hotelIdToAssign);
-        if (!canCreate) throw new Error("No tienes permiso para crear áreas en este hotel.");
+    if (user.rol !== ROLES.AURA_ROOT && user.sites) {
+        const canCreate = user.sites.some((h: any) => h.id === siteIdToAssign);
+        if (!canCreate) throw new Error("No tienes permiso para crear áreas en este sitio.");
     }
 
-    if (!hotelIdToAssign) throw new Error("Se requiere un Hotel para crear el área.");
+    if (!siteIdToAssign) throw new Error("Se requiere un sitio para crear el área.");
 
     const dept = await db.query.departments.findFirst({
-        where: and(eq(departments.id, Number(data.departamentoId)), eq(departments.hotelId, hotelIdToAssign))
+        where: and(eq(departments.id, Number(data.departamentoId)), eq(departments.siteId, siteIdToAssign))
     });
-    if (!dept) throw new Error("El departamento seleccionado no existe o no pertenece a tu hotel.");
+    if (!dept) throw new Error("El departamento seleccionado no existe o no pertenece a tu site.");
 
     const [result] = await db.insert(areas).values({
         nombre: data.nombre,
         departamentoId: Number(data.departamentoId),
-        hotelId: hotelIdToAssign,
+        siteId: siteIdToAssign,
         environmentType: data.environmentType || 'OFFICE'
     });
     
@@ -119,7 +119,7 @@ export const updateArea = async (id: string | number, data: any, user: AuthUser)
 
     if (data.departamentoId) {
         const dept = await db.query.departments.findFirst({
-            where: and(eq(departments.id, Number(data.departamentoId)), eq(departments.hotelId, oldArea.hotelId))
+            where: and(eq(departments.id, Number(data.departamentoId)), eq(departments.siteId, oldArea.siteId))
         });
         if (!dept) throw new Error("El departamento destino no es válido.");
     }

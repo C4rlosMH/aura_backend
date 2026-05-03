@@ -5,9 +5,9 @@ import { ROLES } from "../../config/constants.js";
 import { validateId } from "../../core/middlewares/validateHelper";
 
 const router = Router();
-const READ_ALL = [ROLES.AURA_ROOT, ROLES.HOTEL_ADMIN, ROLES.AURA_SUPPORT, ROLES.AURA_SUPPORT];
-const EDIT_ACCESS = [ROLES.AURA_ROOT, ROLES.HOTEL_ADMIN, ROLES.AURA_SUPPORT];
-const ADMIN_ONLY = [ROLES.AURA_ROOT, ROLES.HOTEL_ADMIN];
+const READ_ALL = [ROLES.AURA_ROOT, ROLES.SITE_ADMIN, ROLES.AURA_SUPPORT, ROLES.AURA_SUPPORT];
+const EDIT_ACCESS = [ROLES.AURA_ROOT, ROLES.SITE_ADMIN, ROLES.AURA_SUPPORT];
+const ADMIN_ONLY = [ROLES.AURA_ROOT, ROLES.SITE_ADMIN];
 
 router.use(authenticateJWT);
 

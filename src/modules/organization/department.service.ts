@@ -6,11 +6,11 @@ import { ROLES } from "../../config/constants.js";
 import { AuthUser, PaginationParams } from "./organization.types";
 
 const getTenantFilter = (user: any) => {
-  if (!user) return { hotelId: -1 };
+  if (!user) return { siteId: -1 };
   if (user.rol === ROLES.AURA_ROOT || user.rol === ROLES.CORP_VIEWER || user.rol === ROLES.CORP_ADMIN) return null;
-  if (user.hotelId && user.allowedHotels && user.allowedHotels.includes(Number(user.hotelId))) return { hotelId: Number(user.hotelId) };
-  if (user.allowedHotels && user.allowedHotels.length > 0) return { in: user.allowedHotels };
-  return { hotelId: -1 };
+  if (user.siteId && user.allowedSites && user.allowedSites.includes(Number(user.siteId))) return { siteId: Number(user.siteId) };
+  if (user.allowedSites && user.allowedSites.length > 0) return { in: user.allowedSites };
+  return { siteId: -1 };
 };
 
 export const getDepartments = async ({ skip, take, sortBy, order }: PaginationParams, user: AuthUser) => {
@@ -18,14 +18,14 @@ export const getDepartments = async ({ skip, take, sortBy, order }: PaginationPa
   
   const conditions: any[] = [isNull(departments.deletedAt)];
   if (tenantFilter) {
-      if (tenantFilter.hotelId === -1) conditions.push(eq(departments.hotelId, -1));
-      else if (tenantFilter.in) conditions.push(inArray(departments.hotelId, tenantFilter.in));
-      else if (tenantFilter.hotelId) conditions.push(eq(departments.hotelId, tenantFilter.hotelId));
+      if (tenantFilter.siteId === -1) conditions.push(eq(departments.siteId, -1));
+      else if (tenantFilter.in) conditions.push(inArray(departments.siteId, tenantFilter.in));
+      else if (tenantFilter.siteId) conditions.push(eq(departments.siteId, tenantFilter.siteId));
   }
 
   const result = await db.query.departments.findMany({
     where: conditions.length > 0 ? and(...conditions) : undefined,
-    with: { hotel: { columns: { nombre: true, codigo: true } } },
+    with: { site: { columns: { nombre: true, codigo: true } } },
     offset: skip,
     limit: take,
     orderBy: (departments, { asc, desc }) => [order === 'desc' ? desc(departments.nombre) : asc(departments.nombre)]
@@ -45,9 +45,9 @@ export const getAllDepartments = async (user: AuthUser) => {
     const tenantFilter = getTenantFilter(user);
     const conditions: any[] = [isNull(departments.deletedAt)];
     if (tenantFilter) {
-        if (tenantFilter.hotelId === -1) conditions.push(eq(departments.hotelId, -1));
-        else if (tenantFilter.in) conditions.push(inArray(departments.hotelId, tenantFilter.in));
-        else if (tenantFilter.hotelId) conditions.push(eq(departments.hotelId, tenantFilter.hotelId));
+        if (tenantFilter.siteId === -1) conditions.push(eq(departments.siteId, -1));
+        else if (tenantFilter.in) conditions.push(inArray(departments.siteId, tenantFilter.in));
+        else if (tenantFilter.siteId) conditions.push(eq(departments.siteId, tenantFilter.siteId));
     }
 
     return await db.query.departments.findMany({
@@ -61,9 +61,9 @@ export const getDepartmentById = async (id: string | number, user: AuthUser) => 
   const conditions: any[] = [eq(departments.id, Number(id)), isNull(departments.deletedAt)];
   
   if (tenantFilter) {
-      if (tenantFilter.hotelId === -1) conditions.push(eq(departments.hotelId, -1));
-      else if (tenantFilter.in) conditions.push(inArray(departments.hotelId, tenantFilter.in));
-      else if (tenantFilter.hotelId) conditions.push(eq(departments.hotelId, tenantFilter.hotelId));
+      if (tenantFilter.siteId === -1) conditions.push(eq(departments.siteId, -1));
+      else if (tenantFilter.in) conditions.push(inArray(departments.siteId, tenantFilter.in));
+      else if (tenantFilter.siteId) conditions.push(eq(departments.siteId, tenantFilter.siteId));
   }
 
   return await db.query.departments.findFirst({
@@ -72,19 +72,19 @@ export const getDepartmentById = async (id: string | number, user: AuthUser) => 
 };
 
 export const createDepartment = async (data: any, user: AuthUser) => {
-  let hotelIdToAssign = user.hotelId;
-  if (!hotelIdToAssign && data.hotelId) hotelIdToAssign = Number(data.hotelId);
+  let siteIdToAssign = user.siteId;
+  if (!siteIdToAssign && data.siteId) siteIdToAssign = Number(data.siteId);
   
-  if (user.rol !== ROLES.AURA_ROOT && user.hotels) {
-      const canCreate = user.hotels.some((h: any) => h.id === hotelIdToAssign);
-      if (!canCreate) throw new Error("No tienes permiso para crear departamentos en este hotel.");
+  if (user.rol !== ROLES.AURA_ROOT && user.sites) {
+      const canCreate = user.sites.some((h: any) => h.id === siteIdToAssign);
+      if (!canCreate) throw new Error("No tienes permiso para crear departamentos en este sitio.");
   }
 
-  if (!hotelIdToAssign) throw new Error("No se puede crear un departamento sin asignar un Hotel.");
+  if (!siteIdToAssign) throw new Error("No se puede crear un departamento sin asignar un sitio.");
 
   const [result] = await db.insert(departments).values({
       nombre: data.nombre,
-      hotelId: hotelIdToAssign
+      siteId: siteIdToAssign
   });
   
   const newDeptId = (result as any).insertId;

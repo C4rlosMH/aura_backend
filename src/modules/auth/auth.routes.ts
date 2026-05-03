@@ -13,15 +13,15 @@ router.use(authenticateJWT);
 
 // Rutas Protegidas
 router.get("/", authController.getUsers);
-router.get("/export", verifyRole(['AURA_ROOT', 'AURA_SUPPORT', 'HOTEL_ADMIN']), authController.exportSystemUsers);
+router.get("/export", verifyRole(['AURA_ROOT', 'AURA_SUPPORT', 'SITE_ADMIN']), authController.exportSystemUsers);
 router.get("/:id", validateId, authController.getUser);
 
 // Solo ROOT o ADMIN pueden crear usuarios en Aura
-router.post("/", verifyRole(['AURA_ROOT', 'HOTEL_ADMIN']), authController.createUser);
+router.post("/", verifyRole(['AURA_ROOT', 'SITE_ADMIN']), authController.createUser);
 
 router.put("/:id/password", validateId, authController.updatePassword);
 
-router.put("/:id", validateId, verifyRole(['AURA_ROOT', 'HOTEL_ADMIN']), authController.updateUserController);
+router.put("/:id", validateId, verifyRole(['AURA_ROOT', 'SITE_ADMIN']), authController.updateUserController);
 
 // Solo ROOT o CORP pueden eliminar cuentas enteras
 router.delete("/:id", validateId, verifyRole(['AURA_ROOT', 'AURA_SUPPORT']), authController.deleteUser);

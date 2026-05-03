@@ -1,6 +1,6 @@
 import { mysqlTable, int, varchar, timestamp, boolean, text } from 'drizzle-orm/mysql-core';
 import { relations } from 'drizzle-orm';
-import { areas, hotels } from '../organization/organization.model';
+import { areas, sites } from '../organization/organization.model';
 import { usersSistema } from '../auth/auth.model';
 
 // Map explicit to legacy table "User" to maintain DB continuity
@@ -11,7 +11,7 @@ export const staff = mysqlTable('User', {
   usuario_login: varchar('usuario_login', { length: 255 }),
   es_jefe_de_area: boolean('es_jefe_de_area').default(false).notNull(),
   areaId: int('areaId'),
-  hotelId: int('hotelId').notNull(),
+  siteId: int('siteId').notNull(),
   created_at: timestamp('created_at').defaultNow().notNull(),
   deletedAt: timestamp('deletedAt')
 });
@@ -27,7 +27,7 @@ export const auraHandoverLogs = mysqlTable('Aura_HandoverLogs', {
 
 export const staffRelations = relations(staff, ({ one, many }) => ({
   area: one(areas, { fields: [staff.areaId], references: [areas.id] }),
-  hotel: one(hotels, { fields: [staff.hotelId], references: [hotels.id] }),
+  site: one(sites, { fields: [staff.siteId], references: [sites.id] }),
   handoverLogs: many(auraHandoverLogs)
 }));
 

@@ -5,5 +5,5 @@ import { ROLES } from "../../config/constants.js";
 
 const router = Router();
 router.use(authenticateJWT);
-router.get("/get", verifyRole([ROLES.AURA_ROOT, ROLES.HOTEL_ADMIN, ROLES.AURA_SUPPORT]), getAuditLogs);
+router.get("/get", verifyRole([ROLES.AURA_ROOT, ROLES.SITE_ADMIN, ROLES.AURA_SUPPORT]), getAuditLogs);
 export default router;

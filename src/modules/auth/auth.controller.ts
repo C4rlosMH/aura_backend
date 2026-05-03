@@ -33,7 +33,7 @@ export const login = async (req: AuthRequest, res: Response, next: NextFunction)
 
 export const createUser = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const { nombre, rol, hotelIds, email, password, username } = req.body; 
+    const { nombre, rol, siteIds, email, password, username } = req.body; 
     
     const cleanUsername = sanitizeUsername(username);
     const cleanEmail = email ? email.trim() : "";
@@ -49,7 +49,7 @@ export const createUser = async (req: AuthRequest, res: Response, next: NextFunc
        password: cleanPassword,
        nombre,
        rol,
-       hotelIds
+       siteIds
     }, req.user!);
 
     const { password: _, ...rest } = createdUser as any;
@@ -91,7 +91,7 @@ export const updatePassword = async (req: AuthRequest, res: Response, next: Next
 
     const requestingUser = req.user!; 
     const isSelf = requestingUser.id === Number(id);
-    const isAdmin = ['AURA_ROOT', 'HOTEL_ADMIN'].includes(requestingUser.rol);
+    const isAdmin = ['AURA_ROOT', 'SITE_ADMIN'].includes(requestingUser.rol);
 
     if (!isSelf && !isAdmin) {
         return res.status(403).json({ error: "No tienes permiso para alterar credenciales en Aura." });

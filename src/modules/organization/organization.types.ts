@@ -1,8 +1,8 @@
 import { InferSelectModel, InferInsertModel } from 'drizzle-orm';
-import { hotels, departments, areas } from './organization.model';
+import { sites, departments, areas } from './organization.model';
 
-export type Hotel = InferSelectModel<typeof hotels>;
-export type NewHotel = InferInsertModel<typeof hotels>;
+export type Site = InferSelectModel<typeof sites>;
+export type NewSite = InferInsertModel<typeof sites>;
 
 export type Department = InferSelectModel<typeof departments>;
 export type NewDepartment = InferInsertModel<typeof departments>;
@@ -13,8 +13,8 @@ export type NewArea = InferInsertModel<typeof areas>;
 export interface AuthUser {
   id: number;
   rol: string;
-  hotelId?: number | null;
-  hotels?: { id: number }[];
+  siteId?: number | null;
+  sites?: { id: number }[];
 }
 
 export interface PaginationParams {

@@ -5,7 +5,7 @@ generator client {
 generator erd {
   provider = "prisma-erd-generator"
   output   = "../ERD.svg"
-  theme    = "forest"  // Opcional: puedes probar 'default', 'dark', 'forest'
+  theme    = "forest"  
 }
 
 datasource db {
@@ -13,12 +13,12 @@ datasource db {
   url = env("DATABASE_URL")
 }
 
-model Hotel {
+model Site {
   id          Int       @id @default(autoincrement())
   nombre      String    @unique
   codigo      String    @unique
   direccion   String?
-  ciudad      String?   // Campo nuevo para el formato de resguardo
+  ciudad      String?   
   razonSocial String?
   diminutivo  String?
   logoUrl     String?
@@ -28,22 +28,21 @@ model Hotel {
   updatedAt   DateTime  @updatedAt
   deletedAt   DateTime?
 
-  // Relaciones
   users       UserSistema[]
   staff       User[]
   departments Department[]
   devices     Device[]
   areas       Area[]
   maintenances Maintenance[]
-  auditLogs   AuditLog[] // Relacion inversa agregada para correccion de error
+  auditLogs   AuditLog[] 
 }
 
 enum Rol {
   ROOT
   CORP_VIEWER
-  HOTEL_ADMIN
-  HOTEL_AUX
-  HOTEL_GUEST
+  SITE_ADMIN
+  SITE_AUX
+  SITE_GUEST
 }
 
 model UserSistema {
@@ -52,8 +51,8 @@ model UserSistema {
   password  String
   email     String?   @unique
   nombre    String?
-  rol       Rol       @default(HOTEL_GUEST)
-  hotels    Hotel[]
+  rol       Rol       @default(SITE_GUEST)
+  sites     Site[]
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -65,26 +64,26 @@ model UserSistema {
 model Department {
   id        Int       @id @default(autoincrement())
   nombre    String
-  hotel     Hotel     @relation(fields: [hotelId], references: [id])
-  hotelId   Int
+  site      Site     @relation(fields: [siteId], references: [id])
+  siteId    Int
   deletedAt DateTime?
   areas     Area[]
 
-  @@unique([nombre, hotelId])
+  @@unique([nombre, siteId])
 }
 
 model Area {
   id             Int        @id @default(autoincrement())
   nombre         String
-  hotel          Hotel      @relation(fields: [hotelId], references: [id])
-  hotelId        Int
+  site           Site      @relation(fields: [siteId], references: [id])
+  siteId         Int
   departamento   Department @relation(fields: [departamentoId], references: [id])
   departamentoId Int
   deletedAt      DateTime?
   users          User[]
   devices        Device[]
 
-  @@unique([nombre, departamentoId, hotelId])
+  @@unique([nombre, departamentoId, siteId])
 }
 
 model OperatingSystem {
@@ -116,20 +115,20 @@ model User {
   es_jefe_de_area Boolean   @default(false)
   area            Area?     @relation(fields: [areaId], references: [id])
   areaId          Int?
-  hotel           Hotel     @relation(fields: [hotelId], references: [id])
-  hotelId         Int
+  site            Site     @relation(fields: [siteId], references: [id])
+  siteId          Int
   created_at      DateTime  @default(now())
   deletedAt       DateTime?
   devices         Device[]
 
   @@index([areaId])
-  @@index([hotelId])
+  @@index([siteId])
 }
 
 model Device {
   id                       Int       @id @default(autoincrement())
-  hotel                    Hotel     @relation(fields: [hotelId], references: [id])
-  hotelId                  Int
+  site                     Site     @relation(fields: [siteId], references: [id])
+  siteId                   Int
 
   etiqueta                 String?
   nombre_equipo            String
@@ -170,9 +169,9 @@ model Device {
   deletedAt                DateTime?
   maintenances             Maintenance[]
 
-  @@index([hotelId])
+  @@index([siteId])
   @@index([usuarioId])
-  @@unique([numero_serie, hotelId])
+  @@unique([numero_serie, siteId])
 }
 
 model Maintenance {
@@ -187,12 +186,12 @@ model Maintenance {
   observaciones       String?   @db.Text
   device              Device    @relation(fields: [deviceId], references: [id])
   deviceId            Int
-  hotel               Hotel     @relation(fields: [hotelId], references: [id])
-  hotelId             Int
+  site                Site     @relation(fields: [siteId], references: [id])
+  siteId              Int
   deletedAt           DateTime?
 
   @@index([deviceId])
-  @@index([hotelId])
+  @@index([siteId])
 }
 
 model AuditLog {
@@ -210,9 +209,9 @@ model AuditLog {
   userId      Int?
   user        UserSistema? @relation(fields: [userId], references: [id])
   
-  hotelId     Int?
-  hotel       Hotel?       @relation(fields: [hotelId], references: [id]) // Relacion corregida
+  siteId      Int?
+  site        Site?       @relation(fields: [siteId], references: [id]) 
 
   @@index([userId])
-  @@index([hotelId])
+  @@index([siteId])
 }

@@ -8,9 +8,9 @@ export const getAuditLogs = async (req: AuthRequest, res: Response, next: NextFu
     const limit = parseInt(req.query.limit as string) || 20;
     const skip = (page - 1) * limit;
 
-    const { entity, userId, hotelId } = req.query;
+    const { entity, userId, siteId } = req.query;
 
-    const { logs, totalCount } = await auditService.getAuditLogs({ skip, take: limit, entity, userId, hotelId }, req.user!);
+    const { logs, totalCount } = await auditService.getAuditLogs({ skip, take: limit, entity, userId, siteId }, req.user!);
 
     res.json({ data: logs, totalCount, currentPage: page, totalPages: Math.ceil(totalCount / limit) });
   } catch (error) { next(error); }

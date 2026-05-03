@@ -1,0 +1,18 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const disposal_controller_1 = require("./disposal.controller");
+const auth_middleware_1 = require("../../middlewares/auth.middleware");
+const constants_js_1 = require("../../config/constants.js");
+const validateHelper_1 = require("../../core/middlewares/validateHelper");
+const router = (0, express_1.Router)();
+const READ_ALL = [constants_js_1.ROLES.AURA_ROOT, constants_js_1.ROLES.SITE_ADMIN, constants_js_1.ROLES.AURA_SUPPORT, constants_js_1.ROLES.AURA_SUPPORT];
+const EDIT_ACCESS = [constants_js_1.ROLES.AURA_ROOT, constants_js_1.ROLES.SITE_ADMIN, constants_js_1.ROLES.AURA_SUPPORT];
+const ADMIN_ONLY = [constants_js_1.ROLES.AURA_ROOT, constants_js_1.ROLES.SITE_ADMIN];
+router.use(auth_middleware_1.authenticateJWT);
+router.get("/get", (0, auth_middleware_1.verifyRole)(READ_ALL), disposal_controller_1.getDisposals);
+router.get("/get/:id", validateHelper_1.validateId, (0, auth_middleware_1.verifyRole)(READ_ALL), disposal_controller_1.getDisposal);
+router.put("/put/:id", validateHelper_1.validateId, (0, auth_middleware_1.verifyRole)(EDIT_ACCESS), disposal_controller_1.updateDisposal);
+router.delete("/delete/:id", validateHelper_1.validateId, (0, auth_middleware_1.verifyRole)(ADMIN_ONLY), disposal_controller_1.deleteDisposal);
+router.get("/export/excel", (0, auth_middleware_1.verifyRole)(READ_ALL), disposal_controller_1.exportDisposalsExcel);
+exports.default = router;

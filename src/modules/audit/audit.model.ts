@@ -1,7 +1,7 @@
 import { mysqlTable, int, varchar, timestamp, json, text } from 'drizzle-orm/mysql-core';
 import { relations } from 'drizzle-orm';
 import { usersSistema } from '../auth/auth.model';
-import { hotels } from '../organization/organization.model';
+import { sites } from '../organization/organization.model';
 
 export const auditLogs = mysqlTable('AuditLog', {
   id: int('id').autoincrement().primaryKey(),
@@ -11,12 +11,12 @@ export const auditLogs = mysqlTable('AuditLog', {
   oldData: json('oldData'),
   newData: json('newData'),
   userId: int('userId'),
-  hotelId: int('hotelId'),
+  siteId: int('siteId'),
   details: text('details'),
   createdAt: timestamp('createdAt').defaultNow().notNull()
 });
 
 export const auditLogsRelations = relations(auditLogs, ({ one }) => ({
    user: one(usersSistema, { fields: [auditLogs.userId], references: [usersSistema.id] }),
-   hotel: one(hotels, { fields: [auditLogs.hotelId], references: [hotels.id] })
+   site: one(sites, { fields: [auditLogs.siteId], references: [sites.id] })
 }));

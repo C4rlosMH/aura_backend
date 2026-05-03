@@ -19,12 +19,12 @@ export const authenticateJWT = async (req: AuthRequest, res: Response, next: Nex
     const bearerToken = token.startsWith("Bearer ") ? token.slice(7, token.length) : token;
     const decoded = jwt.verify(bearerToken, JWT_SECRET) as any;
     
-    // Obtenemos el usuario de la DB incluyendo sus conexiones de hotel
+    // Obtenemos el usuario de la DB incluyendo sus conexiones de sitio
     const userRow = await db.query.usersSistema.findFirst({
         where: eq(usersSistema.id, decoded.id),
         with: {
-            hotelsConnection: {
-                with: { hotel: true }
+            sitesConnection: {
+                with: { site: true }
             }
         }
     });
@@ -37,30 +37,30 @@ export const authenticateJWT = async (req: AuthRequest, res: Response, next: Nex
          return res.status(401).json({ error: "Cuenta desactivada del sistema Aura." });
     }
 
-    // Mapear los hoteles del pivot a la estructura plana esperada
-    const mappedHotels = (userRow.hotelsConnection || []).map((conn: any) => conn.hotel);
+    // Mapear los sitios del pivot a la estructura plana esperada
+    const mappedSites = (userRow.sitesConnection || []).map((conn: any) => conn.site);
     
-    const allowedHotelIds = mappedHotels.map((conn: any) => conn.id);
+    const allowedSiteIds = mappedSites.map((conn: any) => conn.id);
     
     const userContext = {
        ...userRow,
-       hotels: mappedHotels,
-       allowedHotels: allowedHotelIds
+       sites: mappedSites,
+       allowedSites: allowedSiteIds
     };
 
-    const hotelHeader = req.headers['x-hotel-id'];
+    const siteHeader = req.headers['x-site-id'];
 
-    if (hotelHeader && hotelHeader !== 'null' && hotelHeader !== 'undefined') {
-        const requestedHotelId = Number(hotelHeader);
+    if (siteHeader && siteHeader !== 'null' && siteHeader !== 'undefined') {
+        const requestedSiteId = Number(siteHeader);
 
         if (userContext.rol !== ROLES.AURA_ROOT && userContext.rol !== ROLES.AURA_SUPPORT && userContext.rol !== ROLES.CORP_VIEWER && userContext.rol !== ROLES.CORP_ADMIN) {
-            const hasAccess = userContext.allowedHotels.includes(requestedHotelId);
+            const hasAccess = userContext.allowedSites.includes(requestedSiteId);
             if (!hasAccess) {
-                return res.status(403).json({ error: "Acceso denegado a este entorno de hotel en Aura." });
+                return res.status(403).json({ error: "Acceso denegado a este entorno de sitio en Aura." });
             }
         }
 
-        (userContext as any).hotelId = requestedHotelId;
+        (userContext as any).siteId = requestedSiteId;
     }
 
     req.user = userContext as any;

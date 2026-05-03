@@ -1,7 +1,7 @@
 import { mysqlTable, int, varchar, timestamp, boolean, mysqlEnum, unique } from 'drizzle-orm/mysql-core';
 import { relations } from 'drizzle-orm';
 
-export const hotels = mysqlTable('hotels', {
+export const sites = mysqlTable('sites', {
   id: int('id').autoincrement().primaryKey(),
   nombre: varchar('nombre', { length: 255 }).unique().notNull(),
   codigo: varchar('codigo', { length: 50 }).unique().notNull(),
@@ -19,41 +19,41 @@ export const hotels = mysqlTable('hotels', {
 export const departments = mysqlTable('departments', {
   id: int('id').autoincrement().primaryKey(),
   nombre: varchar('nombre', { length: 255 }).notNull(),
-  hotelId: int('hotel_id').notNull(),
+  siteId: int('site_id').notNull(),
   deletedAt: timestamp('deleted_at')
 }, (t) => ({
-   unq: unique().on(t.nombre, t.hotelId)
+   unq: unique().on(t.nombre, t.siteId)
 }));
 
 export const areas = mysqlTable('areas', {
   id: int('id').autoincrement().primaryKey(),
   nombre: varchar('nombre', { length: 255 }).notNull(),
-  hotelId: int('hotel_id').notNull(),
+  siteId: int('site_id').notNull(),
   departamentoId: int('departamento_id').notNull(),
   environmentType: mysqlEnum('environment_type', ['SITE', 'LOBBY', 'OFFICE', 'OUTDOOR']).default('OFFICE'),
   deletedAt: timestamp('deleted_at')
 }, (t) => ({
-  unq: unique().on(t.nombre, t.departamentoId, t.hotelId)
+  unq: unique().on(t.nombre, t.departamentoId, t.siteId)
 }));
 
 // Relational Queries API
-export const hotelsRelations = relations(hotels, ({ many }) => ({
+export const sitesRelations = relations(sites, ({ many }) => ({
   departments: many(departments),
   areas: many(areas)
 }));
 
 export const departmentsRelations = relations(departments, ({ one, many }) => ({
-  hotel: one(hotels, {
-    fields: [departments.hotelId],
-    references: [hotels.id]
+  site: one(sites, {
+    fields: [departments.siteId],
+    references: [sites.id]
   }),
   areas: many(areas)
 }));
 
 export const areasRelations = relations(areas, ({ one }) => ({
-  hotel: one(hotels, {
-    fields: [areas.hotelId],
-    references: [hotels.id]
+  site: one(sites, {
+    fields: [areas.siteId],
+    references: [sites.id]
   }),
   departamento: one(departments, {
     fields: [areas.departamentoId],

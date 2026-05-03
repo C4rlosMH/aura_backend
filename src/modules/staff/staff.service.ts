@@ -9,11 +9,11 @@ import { AuthUser } from "../auth/auth.types";
 import { StaffPaginationParams } from "./staff.types";
 
 const getTenantFilter = (user: any) => {
-  if (!user) return { hotelId: -1 };
+  if (!user) return { siteId: -1 };
   if (user.rol === ROLES.AURA_ROOT || user.rol === ROLES.CORP_VIEWER || user.rol === ROLES.CORP_ADMIN) return null;
-  if (user.hotelId && user.allowedHotels && user.allowedHotels.includes(Number(user.hotelId))) return { hotelId: Number(user.hotelId) };
-  if (user.allowedHotels && user.allowedHotels.length > 0) return { in: user.allowedHotels };
-  return { hotelId: -1 };
+  if (user.siteId && user.allowedSites && user.allowedSites.includes(Number(user.siteId))) return { siteId: Number(user.siteId) };
+  if (user.allowedSites && user.allowedSites.length > 0) return { in: user.allowedSites };
+  return { siteId: -1 };
 };
 
 export const getStaffMembers = async ({ skip, take, search, sortBy, order }: StaffPaginationParams, user: AuthUser) => {
@@ -21,9 +21,9 @@ export const getStaffMembers = async ({ skip, take, search, sortBy, order }: Sta
   
   const conditions: any[] = [isNull(staff.deletedAt)];
   if (tenantFilter) {
-      if (tenantFilter.hotelId === -1) conditions.push(eq(staff.hotelId, -1));
-      else if (tenantFilter.in) conditions.push(inArray(staff.hotelId, tenantFilter.in));
-      else if (tenantFilter.hotelId) conditions.push(eq(staff.hotelId, tenantFilter.hotelId));
+      if (tenantFilter.siteId === -1) conditions.push(eq(staff.siteId, -1));
+      else if (tenantFilter.in) conditions.push(inArray(staff.siteId, tenantFilter.in));
+      else if (tenantFilter.siteId) conditions.push(eq(staff.siteId, tenantFilter.siteId));
   }
 
   if (search) {
@@ -38,7 +38,7 @@ export const getStaffMembers = async ({ skip, take, search, sortBy, order }: Sta
     where: conditions.length > 0 ? and(...conditions) : undefined,
     with: {
         area: { with: { departamento: true } },
-        hotel: { columns: { nombre: true, codigo: true } }
+        site: { columns: { nombre: true, codigo: true } }
     },
     ...(skip !== undefined && { offset: skip }),
     ...(take !== undefined && take > 0 && { limit: take }),
@@ -60,14 +60,14 @@ export const getAllStaff = async (user: AuthUser) => {
   const conditions: any[] = [isNull(staff.deletedAt)];
   
   if (tenantFilter) {
-      if (tenantFilter.hotelId === -1) conditions.push(eq(staff.hotelId, -1));
-      else if (tenantFilter.in) conditions.push(inArray(staff.hotelId, tenantFilter.in));
-      else if (tenantFilter.hotelId) conditions.push(eq(staff.hotelId, tenantFilter.hotelId));
+      if (tenantFilter.siteId === -1) conditions.push(eq(staff.siteId, -1));
+      else if (tenantFilter.in) conditions.push(inArray(staff.siteId, tenantFilter.in));
+      else if (tenantFilter.siteId) conditions.push(eq(staff.siteId, tenantFilter.siteId));
   }
 
   return await db.query.staff.findMany({
       where: conditions.length > 0 ? and(...conditions) : undefined,
-      columns: { id: true, nombre: true, areaId: true, hotelId: true },
+      columns: { id: true, nombre: true, areaId: true, siteId: true },
       orderBy: (staffTbl, { asc }) => [asc(staffTbl.nombre)]
   });
 };
@@ -77,9 +77,9 @@ export const getStaffById = async (id: number | string, user: AuthUser) => {
     const conditions: any[] = [eq(staff.id, Number(id)), isNull(staff.deletedAt)];
     
     if (tenantFilter) {
-        if (tenantFilter.hotelId === -1) conditions.push(eq(staff.hotelId, -1));
-        else if (tenantFilter.in) conditions.push(inArray(staff.hotelId, tenantFilter.in));
-        else if (tenantFilter.hotelId) conditions.push(eq(staff.hotelId, tenantFilter.hotelId));
+        if (tenantFilter.siteId === -1) conditions.push(eq(staff.siteId, -1));
+        else if (tenantFilter.in) conditions.push(inArray(staff.siteId, tenantFilter.in));
+        else if (tenantFilter.siteId) conditions.push(eq(staff.siteId, tenantFilter.siteId));
     }
 
     return await db.query.staff.findFirst({
@@ -89,20 +89,20 @@ export const getStaffById = async (id: number | string, user: AuthUser) => {
 };
 
 export const createStaff = async (data: any, user: AuthUser) => {
-    let hotelIdToAssign = user.hotelId;
-    if (!hotelIdToAssign && data.hotelId) {
-        hotelIdToAssign = Number(data.hotelId);
+    let siteIdToAssign = user.siteId;
+    if (!siteIdToAssign && data.siteId) {
+        siteIdToAssign = Number(data.siteId);
     }
     
-    if (!hotelIdToAssign) {
-        throw new Error("Se requiere un Hotel paramétrico para asimilar al Staff en Aura.");
+    if (!siteIdToAssign) {
+        throw new Error("Se requiere un sitio paramétrico para asimilar al Staff en Aura.");
     }
 
     if (data.areaId) {
         const areaExists = await db.query.areas.findFirst({
-            where: and(eq(areas.id, Number(data.areaId)), eq(areas.hotelId, hotelIdToAssign))
+            where: and(eq(areas.id, Number(data.areaId)), eq(areas.siteId, siteIdToAssign))
         });
-        if (!areaExists) throw new Error("El Área destino no califica para este Hub/Hotel.");
+        if (!areaExists) throw new Error("El Área destino no califica para este Hub/Site.");
     }
 
     const [result] = await db.insert(staff).values({
@@ -111,7 +111,7 @@ export const createStaff = async (data: any, user: AuthUser) => {
         usuario_login: data.usuario_login,
         es_jefe_de_area: data.es_jefe_de_area || false,
         areaId: data.areaId ? Number(data.areaId) : null,
-        hotelId: hotelIdToAssign
+        siteId: siteIdToAssign
     });
     
     const newStaffId = (result as any).insertId;
@@ -137,9 +137,9 @@ export const updateStaff = async (id: number | string, data: any, user: AuthUser
 
     if (data.areaId) {
         const areaExists = await db.query.areas.findFirst({
-            where: and(eq(areas.id, Number(data.areaId)), eq(areas.hotelId, oldStaff.hotelId))
+            where: and(eq(areas.id, Number(data.areaId)), eq(areas.siteId, oldStaff.siteId))
         });
-        if (!areaExists) throw new Error("El Área destino no califica para este Hub/Hotel.");
+        if (!areaExists) throw new Error("El Área destino no califica para este Hub/Site.");
     }
 
     await db.update(staff).set({
@@ -214,19 +214,19 @@ const extractRowData = (row: any, headerMap: any) => {
   };
 };
 
-export const importStaffFromExcel = async (buffer: any, user: AuthUser, targetHotelId: number | null = null) => {
+export const importStaffFromExcel = async (buffer: any, user: AuthUser, targetSiteId: number | null = null) => {
   // Lógica de acceso
-  let hotelIdToImport = null;
-  if (targetHotelId) {
-      if (user.rol === ROLES.AURA_ROOT) hotelIdToImport = targetHotelId;
+  let siteIdToImport = null;
+  if (targetSiteId) {
+      if (user.rol === ROLES.AURA_ROOT) siteIdToImport = targetSiteId;
       else {
-          const hasAccess = user.hotels && user.hotels.some(h => h.id === targetHotelId);
-          if (hasAccess) hotelIdToImport = targetHotelId;
+          const hasAccess = user.sites && user.sites.some(h => h.id === targetSiteId);
+          if (hasAccess) siteIdToImport = targetSiteId;
           else throw new Error("Acceso denegado en Aura: Proxy rechaza acceso a este Entorno.");
       }
   } else {
-      if (user.hotels && user.hotels.length === 1) hotelIdToImport = user.hotels[0].id;
-      else throw new Error("Falla de Asignación. Aura requiere que especifiques a qué Hub/Hotel pertenece este batallón de Staff.");
+      if (user.sites && user.sites.length === 1) siteIdToImport = user.sites[0].id;
+      else throw new Error("Falla de Asignación. Aura requiere que especifiques a qué Hub/Site pertenece este batallón de Staff.");
   }
 
   const workbook = new ExcelJS.Workbook();
@@ -257,7 +257,7 @@ export const importStaffFromExcel = async (buffer: any, user: AuthUser, targetHo
   if (headerRowNumber === 0) throw new Error("Aura Core Rejected: No se encontró la columna Raíz ('Nombre').");
 
   const activeAreas = await db.query.areas.findMany({
-      where: and(isNull(areas.deletedAt), eq(areas.hotelId, hotelIdToImport)),
+      where: and(isNull(areas.deletedAt), eq(areas.siteId, siteIdToImport)),
       with: { departamento: true }
   });
 
@@ -285,7 +285,7 @@ export const importStaffFromExcel = async (buffer: any, user: AuthUser, targetHo
       areaId,
       usuario_login: rowData.usuario_login,
       es_jefe_de_area: rowData.es_jefe_de_area,
-      hotelId: hotelIdToImport
+      siteId: siteIdToImport
     });
   });
 
@@ -297,7 +297,7 @@ export const importStaffFromExcel = async (buffer: any, user: AuthUser, targetHo
   for (const u of usersToCreate) {
       try {
           const existing = await db.query.staff.findFirst({
-              where: and(eq(staff.nombre, u.nombre), eq(staff.hotelId, hotelIdToImport))
+              where: and(eq(staff.nombre, u.nombre), eq(staff.siteId, siteIdToImport))
           });
 
           if (!existing) {
@@ -316,7 +316,7 @@ export const importStaffFromExcel = async (buffer: any, user: AuthUser, targetHo
           action: 'IMPORT',
           entity: 'Staff',
           entityId: 0,
-          details: `Importación Masiva de Staff: ${successCount} Activos asignados al Hub/Hotel ${hotelIdToImport}.`,
+          details: `Importación Masiva de Staff: ${successCount} Activos asignados al Hub/Site ${siteIdToImport}.`,
           user: user
       });
   }

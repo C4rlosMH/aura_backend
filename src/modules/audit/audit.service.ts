@@ -9,10 +9,10 @@ export const logActivity = async ({ action, entity, entityId, oldData = null, ne
     const actionsWithoutId = ['LOGIN_FAIL', 'UNAUTHORIZED_ACCESS', 'IMPORT'];
     if ((entityId === null || entityId === undefined) && !actionsWithoutId.includes(action)) return;
 
-    let hotelIdToLog = null;
-    if (user && user.hotelId) hotelIdToLog = user.hotelId;
-    else if (newData && newData.hotelId) hotelIdToLog = newData.hotelId;
-    else if (oldData && oldData.hotelId) hotelIdToLog = oldData.hotelId;
+    let siteIdToLog = null;
+    if (user && user.siteId) siteIdToLog = user.siteId;
+    else if (newData && newData.siteId) siteIdToLog = newData.siteId;
+    else if (oldData && oldData.siteId) siteIdToLog = oldData.siteId;
 
     await db.insert(auditLogs).values({
         action, entity,
@@ -20,27 +20,27 @@ export const logActivity = async ({ action, entity, entityId, oldData = null, ne
         oldData: oldData ? oldData : null, 
         newData: newData ? newData : null,
         userId: user ? Number(user.id) : null,
-        hotelId: hotelIdToLog ? Number(hotelIdToLog) : null,
+        siteId: siteIdToLog ? Number(siteIdToLog) : null,
         details: details || null,
     });
   } catch (error: any) { console.error("Error al registrar auditoría:", error.message); }
 };
 
-export const getAuditLogs = async ({ skip, take, entity, userId, hotelId }: any, user: AuthUser) => {
+export const getAuditLogs = async ({ skip, take, entity, userId, siteId }: any, user: AuthUser) => {
   const conditions: any[] = [];
 
-  if (user.hotelId) conditions.push(eq(auditLogs.hotelId, user.hotelId));
+  if (user.siteId) conditions.push(eq(auditLogs.siteId, user.siteId));
   else if (user.rol === ROLES.AURA_ROOT || user.rol === ROLES.AURA_SUPPORT) {
-      if (hotelId) conditions.push(eq(auditLogs.hotelId, Number(hotelId)));
-  } else if (user.hotels && user.hotels.length > 0) {
-      const myHotelIds = user.hotels.map(h => h.id);
-      if (hotelId) {
-          if (myHotelIds.includes(Number(hotelId))) conditions.push(eq(auditLogs.hotelId, Number(hotelId)));
-          else conditions.push(eq(auditLogs.hotelId, -1)); 
+      if (siteId) conditions.push(eq(auditLogs.siteId, Number(siteId)));
+  } else if (user.sites && user.sites.length > 0) {
+      const mySiteIds = user.sites.map(h => h.id);
+      if (siteId) {
+          if (mySiteIds.includes(Number(siteId))) conditions.push(eq(auditLogs.siteId, Number(siteId)));
+          else conditions.push(eq(auditLogs.siteId, -1)); 
       } else {
-          conditions.push(inArray(auditLogs.hotelId, myHotelIds));
+          conditions.push(inArray(auditLogs.siteId, mySiteIds));
       }
-  } else { conditions.push(eq(auditLogs.hotelId, -1)); }
+  } else { conditions.push(eq(auditLogs.siteId, -1)); }
 
   if (entity) conditions.push(eq(auditLogs.entity, entity));
   if (userId) conditions.push(eq(auditLogs.userId, Number(userId)));
@@ -48,7 +48,7 @@ export const getAuditLogs = async ({ skip, take, entity, userId, hotelId }: any,
   const logs = await db.query.auditLogs.findMany({
       where: conditions.length > 0 ? and(...conditions) : undefined,
       offset: skip, limit: take,
-      with: { user: { columns: { username: true, nombre: true, rol: true } }, hotel: { columns: { nombre: true, codigo: true } } },
+      with: { user: { columns: { username: true, nombre: true, rol: true } }, site: { columns: { nombre: true, codigo: true } } },
       orderBy: (logs, { desc }) => [desc(logs.createdAt)]
   });
 
