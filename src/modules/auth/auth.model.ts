@@ -2,7 +2,7 @@ import { mysqlTable, int, varchar, timestamp, mysqlEnum, unique, index } from 'd
 import { relations } from 'drizzle-orm';
 import { sites } from '../organization/organization.model';
 
-export const usersSistema = mysqlTable('UserSistema', {
+export const usersSistema = mysqlTable('userSistema', {
   id: int('id').autoincrement().primaryKey(),
   username: varchar('username', { length: 255 }).unique().notNull(),
   password: varchar('password', { length: 255 }).notNull(),

@@ -1,7 +1,4 @@
-node_modules
-# Keep environment variables out of version control
 
-/generated/prisma
 
 .env
 *.xlsx
@@ -10,3 +7,17 @@ node_modules
 
 logs/
 *.log
+
+# Aura Business Intelligence - Secretos Comerciales
+*.secret.ts
+*.secret.js
+
+
+# Compilación y Artefactos
+dist
+dist_obfuscated
+node_modules
+
+# Legado (Prisma ya no se usa en Aura)
+prisma
+

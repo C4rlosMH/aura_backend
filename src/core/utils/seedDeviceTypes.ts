@@ -5,41 +5,45 @@ import { eq, inArray } from "drizzle-orm";
 
 const STANDARD_DEVICE_TYPES = [
     // COMPUTING
-    { nombre: "Laptop", category: "COMPUTING", sub_category: "Portátil", icon_id: "lucide-laptop" },
-    { nombre: "Desktop", category: "COMPUTING", sub_category: "Estación de Trabajo", icon_id: "lucide-monitor" },
-    { nombre: "Servidor", category: "COMPUTING", sub_category: "Infraestructura", icon_id: "lucide-server" },
-    { nombre: "Tablet", category: "COMPUTING", sub_category: "Móvil", icon_id: "lucide-tablet" },
+    { nombre: "Laptop", category: "COMPUTING", sub_category: "Portátil" },
+    { nombre: "Desktop", category: "COMPUTING", sub_category: "Estación de Trabajo" },
+    { nombre: "Monitor", category: "COMPUTING", sub_category: "Periférico de Salida" },
+    { nombre: "Servidor", category: "COMPUTING", sub_category: "Infraestructura" },
+    { nombre: "Tablet", category: "COMPUTING", sub_category: "Móvil" },
+    { nombre: "Celular", category: "COMPUTING", sub_category: "Móvil" },
     
     // NETWORK
-    { nombre: "Switch", category: "NETWORK", sub_category: "Distribución", icon_id: "lucide-network" },
-    { nombre: "Access Point", category: "NETWORK", sub_category: "Inalámbrico", icon_id: "lucide-wifi" },
-    { nombre: "Router", category: "NETWORK", sub_category: "Enrutamiento", icon_id: "lucide-router" },
-    { nombre: "Patch Panel", category: "NETWORK", sub_category: "Infraestructura", icon_id: "lucide-server" },
+    { nombre: "Switch", category: "NETWORK", sub_category: "Distribución" },
+    { nombre: "Access Point", category: "NETWORK", sub_category: "Inalámbrico" },
+    { nombre: "Router", category: "NETWORK", sub_category: "Enrutamiento" },
+    { nombre: "Patch Panel", category: "NETWORK", sub_category: "Infraestructura" },
+    { nombre: "Teléfono IP", category: "NETWORK", sub_category: "Comunicación" },
+    { nombre: "Teléfono Analógico", category: "NETWORK", sub_category: "Comunicación" },
 
     // CCTV
-    { nombre: "Cámara Bala", category: "CCTV", sub_category: "Vigilancia Exterior", icon_id: "lucide-cctv" },
-    { nombre: "Cámara Domo", category: "CCTV", sub_category: "Vigilancia Interior", icon_id: "lucide-cctv" },
-    { nombre: "NVR", category: "CCTV", sub_category: "Grabación IP", icon_id: "lucide-hard-drive" },
-    { nombre: "DVR", category: "CCTV", sub_category: "Grabación Análoga", icon_id: "lucide-hard-drive" },
+    { nombre: "Cámara Bala", category: "CCTV", sub_category: "Vigilancia Exterior" },
+    { nombre: "Cámara Domo", category: "CCTV", sub_category: "Vigilancia Interior" },
+    { nombre: "NVR", category: "CCTV", sub_category: "Grabación IP" },
+    { nombre: "DVR", category: "CCTV", sub_category: "Grabación Análoga" },
 
     // PERIPHERAL
-    { nombre: "Impresora Térmica", category: "PERIPHERAL", sub_category: "Impresión", icon_id: "lucide-printer" },
-    { nombre: "Impresora Láser", category: "PERIPHERAL", sub_category: "Impresión", icon_id: "lucide-printer" },
-    { nombre: "Escáner", category: "PERIPHERAL", sub_category: "Digitalización", icon_id: "lucide-scan" },
-    { nombre: "UPS / No-Break", category: "PERIPHERAL", sub_category: "Energía", icon_id: "lucide-battery-charging" },
+    { nombre: "Impresora Térmica", category: "PERIPHERAL", sub_category: "Impresión" },
+    { nombre: "Impresora Láser", category: "PERIPHERAL", sub_category: "Impresión" },
+    { nombre: "Escáner", category: "PERIPHERAL", sub_category: "Digitalización" },
+    { nombre: "UPS / No-Break", category: "PERIPHERAL", sub_category: "Energía" },
 
     // POS
-    { nombre: "Terminal Punto de Venta", category: "POS", sub_category: "Cobro", icon_id: "lucide-credit-card" },
-    { nombre: "Cajón de Dinero", category: "POS", sub_category: "Cobro", icon_id: "lucide-banknote" },
+    { nombre: "Terminal Punto de Venta", category: "POS", sub_category: "Cobro" },
+    { nombre: "Cajón de Dinero", category: "POS", sub_category: "Cobro" },
 
     // AUDIOVISUAL
-    { nombre: "Proyector", category: "AUDIOVISUAL", sub_category: "Video", icon_id: "lucide-projector" },
-    { nombre: "Pantalla / TV", category: "AUDIOVISUAL", sub_category: "Video", icon_id: "lucide-tv" },
-    { nombre: "Amplificador", category: "AUDIOVISUAL", sub_category: "Audio", icon_id: "lucide-speaker" }
+    { nombre: "Proyector", category: "AUDIOVISUAL", sub_category: "Video" },
+    { nombre: "Pantalla / TV", category: "AUDIOVISUAL", sub_category: "Video" },
+    { nombre: "Amplificador", category: "AUDIOVISUAL", sub_category: "Audio" }
 ];
 
 export const seedAndCleanDeviceTypes = async () => {
-    console.log("[Aura Seed] Iniciando limpieza y estandarización de DeviceTypes...");
+    console.log("[Aura Seed] Iniciando limpieza y estandarización de DeviceTypes (Sin Iconos)...");
 
     try {
         // 1. Inserción o Actualización de Tipos Estándar
@@ -51,20 +55,18 @@ export const seedAndCleanDeviceTypes = async () => {
             if (existing) {
                 await db.update(deviceType).set({
                     category: item.category as any,
-                    sub_category: item.sub_category,
-                    icon_id: item.icon_id
+                    sub_category: item.sub_category
                 }).where(eq(deviceType.id, existing.id));
             } else {
                 await db.insert(deviceType).values({
                     nombre: item.nombre,
                     category: item.category as any,
-                    sub_category: item.sub_category,
-                    icon_id: item.icon_id
+                    sub_category: item.sub_category
                 });
             }
         }
 
-        // 2. Localizar Tipos Huérfanos/Basura (que no están en la lista estándar)
+        // 2. Localizar Tipos Huérfanos/Basura
         const allTypes = await db.query.deviceType.findMany();
         const validNames = STANDARD_DEVICE_TYPES.map(t => t.nombre);
         
@@ -76,21 +78,18 @@ export const seedAndCleanDeviceTypes = async () => {
             const fallbackType = await db.query.deviceType.findFirst({ where: eq(deviceType.nombre, "Desktop") });
 
             for (const orphan of orphanedTypes) {
-                // Verificar si hay dispositivos usando este tipo huérfano
                 const devicesUsingOrphan = await db.query.devices.findMany({
                     where: eq(devices.tipoId, orphan.id)
                 });
 
                 if (devicesUsingOrphan.length > 0 && fallbackType) {
                     console.warn(`[Aura Seed] Reasignando ${devicesUsingOrphan.length} equipos del tipo '${orphan.nombre}' a 'Desktop'.`);
-                    // Migrar los equipos a un tipo válido para no romper la integridad referencial antes de eliminar
                     const idsToUpdate = devicesUsingOrphan.map(d => d.id);
                     await db.update(devices)
                         .set({ tipoId: fallbackType.id })
                         .where(inArray(devices.id, idsToUpdate));
                 }
 
-                // Finalmente, eliminar el tipo basura generado por el legacy
                 await db.delete(deviceType).where(eq(deviceType.id, orphan.id));
                 console.log(`[Aura Seed] Tipo huérfano eliminado: ${orphan.nombre}`);
             }
@@ -103,7 +102,6 @@ export const seedAndCleanDeviceTypes = async () => {
     }
 };
 
-// Ejecutar el script directamente
 seedAndCleanDeviceTypes().then(() => {
     console.log("[Aura Seed] Finalizado con éxito.");
     process.exit(0);

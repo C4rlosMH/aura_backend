@@ -4,12 +4,12 @@ import { areas, sites } from '../organization/organization.model';
 import { staff } from '../staff/staff.model';
 
 export const deviceType = mysqlTable('DeviceType', {
-  id: int('id').autoincrement().primaryKey(),
-  nombre: varchar('nombre', { length: 255 }).notNull(),
-  category: mysqlEnum('category', ['COMPUTING', 'NETWORK', 'CCTV', 'PERIPHERAL', 'AUDIOVISUAL', 'POS']).default('COMPUTING').notNull(),
-  sub_category: varchar('sub_category', { length: 100 }), // Para mayor granularidad (ej. Impresora -> Térmica)
-  icon_id: varchar('icon_id', { length: 100 }), // Lucide/FontAwesome mapping para el Frontend
-  deletedAt: timestamp('deletedAt')
+    id: int('id').autoincrement().primaryKey(),
+    nombre: varchar('nombre', { length: 255 }).notNull().unique(),
+    category: mysqlEnum('category', ['COMPUTING', 'NETWORK', 'CCTV', 'PERIPHERAL', 'POS', 'AUDIOVISUAL']).notNull(),
+    sub_category: varchar('sub_category', { length: 255 }),
+    createdAt: timestamp('createdAt').defaultNow(),
+    updatedAt: timestamp('updatedAt').defaultNow().onUpdateNow(),
 });
 
 export const deviceStatus = mysqlTable('DeviceStatus', {
@@ -77,7 +77,10 @@ export const devices = mysqlTable('Device', {
 
   created_at: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updatedAt').defaultNow().onUpdateNow().notNull(),
-  deletedAt: timestamp('deletedAt')
+  deletedAt: timestamp('deletedAt'),
+  precioCompra: decimal('precio_compra', { precision: 10, scale: 2 }).default('0.00'),
+  moneda: varchar('moneda', { length: 3 }).default('MXN'), // O USD según necesites
+
 });
 
 export const deviceRelations = relations(devices, ({ one }) => ({
@@ -94,3 +97,31 @@ export const vlanRelations = relations(auraVLANs, ({ one, many }) => ({
    site: one(sites, { fields: [auraVLANs.siteId], references: [sites.id] }),
    devices: many(devices)
 }));
+
+// ==========================================================================
+// === MÓDULO DE INSUMOS Y CONSUMIBLES
+// ==========================================================================
+
+export const supplies = mysqlTable('supplies', {
+    id: int('id').autoincrement().primaryKey(),
+    nombre: varchar('nombre', { length: 255 }).notNull(), // Ej: "Cable UTP Cat 6"
+    descripcion: text('descripcion'),
+    siteId: int('site_id').notNull(), // <-- Cada Sitio tiene su propia bodega
+    cantidad: decimal('cantidad', { precision: 10, scale: 2 }).notNull().default('0.00'), // Soporta decimales (ej: 15.5 metros)
+    unidadMedida: mysqlEnum('unidad_medida', ['PIEZAS', 'METROS', 'LITROS', 'CAJAS', 'ROLLOS']).notNull().default('PIEZAS'),
+    stockMinimo: decimal('stock_minimo', { precision: 10, scale: 2 }).notNull().default('5.00'), // Para disparar alertas
+    costoUnitario: decimal('costo_unitario', { precision: 10, scale: 2 }).notNull().default('0.00'), // Clave para el módulo financiero
+    createdAt: timestamp('createdAt').defaultNow(),
+    updatedAt: timestamp('updatedAt').defaultNow().onUpdateNow(),
+});
+
+export const supplyTransactions = mysqlTable('supply_transactions', {
+    id: int('id').autoincrement().primaryKey(),
+    supplyId: int('supply_id').notNull(),
+    tipo: mysqlEnum('tipo', ['IN', 'OUT']).notNull(), // IN = Compra/Ingreso, OUT = Consumo/Gasto
+    cantidad: decimal('cantidad', { precision: 10, scale: 2 }).notNull(),
+    userId: int('user_id').notNull(), // Qué técnico hizo el movimiento
+    deviceId: int('device_id'), // Opcional: ¿A qué equipo se le instaló este material? (Para calcular TCO)
+    notas: text('notas'), // Ej: "Se usaron 20m de UTP para reparar el nodo de gerencia"
+    createdAt: timestamp('createdAt').defaultNow(),
+});

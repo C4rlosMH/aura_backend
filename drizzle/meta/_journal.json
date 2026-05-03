@@ -8,6 +8,27 @@
       "when": 1777774305009,
       "tag": "0000_smooth_gravity",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1777777119278,
+      "tag": "0001_rare_the_executioner",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1777778490165,
+      "tag": "0002_green_gressill",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1777780160631,
+      "tag": "0003_parched_skaar",
+      "breakpoints": true
     }
   ]
 }
