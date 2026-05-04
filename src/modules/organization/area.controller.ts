@@ -62,3 +62,28 @@ export const deleteArea = async (req: AuthenticatedRequest, res: Response, next:
     next(error);
   }
 };
+
+export const uploadAreaMap = async (req: Request, res: Response) => {
+  try {
+    const areaId = parseInt(req.params.id as string);
+
+    // 1. Validar que multer realmente haya subido un archivo
+    if (!req.file) {
+      return res.status(400).json({ error: "No se proporcionó ninguna imagen válida." });
+    }
+
+    // 2. Construir la URL pública
+    const imageUrl = `/uploads/maps/${req.file.filename}`;
+
+    // 3. Llamar al SERVICIO (¡Que ahora sí existe!)
+    const updatedArea = await areaService.updateAreaMapUrl(areaId, imageUrl);
+
+    res.status(200).json({
+      message: "Croquis del área subido correctamente",
+      data: updatedArea
+    });
+
+  } catch (error: any) {
+    res.status(500).json({ error: "Error al subir el mapa del área", details: error.message });
+  }
+};

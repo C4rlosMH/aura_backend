@@ -1,7 +1,7 @@
 import pkg from "node-machine-id";
 const { machineIdSync } = pkg;
 import { db } from "../database";
-import { auraLicense } from "./license.model";
+import { licenses } from "./license.model"; // <-- CORREGIDO: Importamos 'licenses'
 import { eq } from "drizzle-orm";
 import crypto from "crypto";
 
@@ -18,15 +18,18 @@ export const getMachineId = () => {
 
 export const validateLicenseLocally = async () => {
     const hwid = getMachineId();
-    const license = await db.query.auraLicense.findFirst({
-        where: eq(auraLicense.machineId, hwid)
+    // CORREGIDO: db.query.licenses
+    const license = await db.query.licenses.findFirst({
+        where: eq(licenses.hardwareFingerprint, hwid) // CORREGIDO: hardwareFingerprint
     });
 
-    if (!license || !license.isActive || !license.activationToken) {
+    // CORREGIDO: licenseKey
+    if (!license || !license.isActive || !license.licenseKey) {
         return false;
     }
 
-    if (license.expireAt && new Date() > license.expireAt) {
+    // CORREGIDO: expiresAt
+    if (license.expiresAt && new Date() > license.expiresAt) {
         return false; 
     }
 
@@ -38,28 +41,30 @@ export const activateAura = async (activationKey: string) => {
     
     // Simulate external verification
     if (activationKey.startsWith("AURA-KEY-")) {
-       const token = crypto.randomBytes(32).toString('hex');
        
-       const existing = await db.query.auraLicense.findFirst({ where: eq(auraLicense.machineId, hwid) });
+       const existing = await db.query.licenses.findFirst({ 
+           where: eq(licenses.hardwareFingerprint, hwid) 
+       });
 
        let expires = new Date();
        expires.setFullYear(expires.getFullYear() + 1); // 1 año de licencia
 
        if (!existing) {
-           await db.insert(auraLicense).values({
-               machineId: hwid,
-               activationToken: token,
+           await db.insert(licenses).values({
+               id: crypto.randomUUID(), // <-- AÑADIDO: Tu modelo pide un varchar(36) para el PK
+               clientName: "Cliente Default Aura", // <-- AÑADIDO: Tu modelo lo marca como notNull()
+               licenseKey: activationKey, // <-- CORREGIDO
+               hardwareFingerprint: hwid, // <-- CORREGIDO
                isActive: true,
-               expireAt: expires,
-               lastValidatedAt: new Date()
+               expiresAt: expires // <-- CORREGIDO
+               // createdAt y updatedAt se llenan solos por el default() en el modelo
            });
        } else {
-           await db.update(auraLicense).set({
-               activationToken: token,
+           await db.update(licenses).set({
+               licenseKey: activationKey,
                isActive: true,
-               expireAt: expires,
-               lastValidatedAt: new Date()
-           }).where(eq(auraLicense.id, existing.id));
+               expiresAt: expires
+           }).where(eq(licenses.id, existing.id));
        }
 
        return { success: true, message: "Instancia de Aura activada y blindada con éxito." };

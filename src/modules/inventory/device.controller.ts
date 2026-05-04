@@ -1,4 +1,4 @@
-import { Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from "express";
 import * as deviceService from "./device.service";
 import { AuthRequest } from "../auth/auth.types";
 
@@ -82,5 +82,36 @@ export const updateDevicePosition = async (req: AuthRequest, res: Response, next
       return res.status(404).json({ error: error.message });
     }
     next(error);
+  }
+};
+
+export const updatePosition = async (req: Request, res: Response) => {
+  try {
+    const deviceId = parseInt(req.params.id as string);
+    
+    const { pos_x, pos_y, floor } = req.body;
+
+    if (isNaN(deviceId)) {
+      return res.status(400).json({ error: "ID de dispositivo inválido" });
+    }
+
+    if (pos_x === undefined || pos_y === undefined) {
+      return res.status(400).json({ error: "Coordenadas pos_x y pos_y son requeridas." });
+    }
+
+    const result = await deviceService.updateDevicePosition(
+      deviceId, 
+      pos_x.toString(), 
+      pos_y.toString(), 
+      floor ? parseInt(floor) : 1
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Posición actualizada en el mapa",
+      data: result
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: "Error al mover el equipo", details: error.message });
   }
 };

@@ -218,3 +218,15 @@ export const updatePosition = async (
 
   return updatedDevice;
 };
+
+export const updateDevicePosition = async (id: number, pos_x: string, pos_y: string, floor: number) => {
+  await db.update(devices)
+    .set({ 
+      pos_x, 
+      pos_y,
+      floor // <-- Y que aquí se guarde en la base de datos
+    })
+    .where(eq(devices.id, id));
+
+  return { id, pos_x, pos_y, floor };
+};

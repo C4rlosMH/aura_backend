@@ -163,3 +163,14 @@ export const deleteArea = async (id: string | number, user: AuthUser) => {
 
     return { message: "Area deleted" };
 };
+
+export const updateAreaMapUrl = async (id: number, mapUrl: string) => {
+  // 1. Actualizamos el campo en la base de datos
+  await db.update(areas)
+    .set({ map_image_url: mapUrl })
+    .where(eq(areas.id, id));
+
+  // 2. Retornamos el área actualizada para que el frontend la vea
+  const [updatedArea] = await db.select().from(areas).where(eq(areas.id, id));
+  return updatedArea; 
+};
